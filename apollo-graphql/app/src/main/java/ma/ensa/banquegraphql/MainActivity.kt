@@ -46,6 +46,7 @@ class MainActivity : AppCompatActivity() {
         setupRecyclerView()
         setupAddButton()
         observeViewModel()
+        setupDeleteListener()
 
         filterButton.setOnClickListener {
             applyFilter()
@@ -90,7 +91,7 @@ class MainActivity : AppCompatActivity() {
                     // Show loading UI
                 }
                 is MainViewModel.UIState.Success -> {
-                    // Mettez à jour la liste complète des comptes et l'adaptateur
+                    // Update the full list of accounts and adapter
                     allComptes = state.data
                     comptesAdapter.updateList(allComptes)
                 }
@@ -122,7 +123,7 @@ class MainActivity : AppCompatActivity() {
         val filteredComptes = when (filterType.uppercase()) {
             "COURANT" -> allComptes.filter { it.type == TypeCompte.COURANT }
             "EPARGNE" -> allComptes.filter { it.type == TypeCompte.EPARGNE }
-            else -> allComptes // Retourne tous les comptes si aucun type spécifique n'est sélectionné
+            else -> allComptes // Return all accounts if no specific type is selected
         }
 
         comptesAdapter.updateList(filteredComptes)
@@ -163,5 +164,18 @@ class MainActivity : AppCompatActivity() {
             }
             .setNegativeButton("Annuler", null)
             .show()
+    }
+
+    private fun setupDeleteListener() {
+        comptesAdapter.setOnDeleteClickListener { compteId ->
+            MaterialAlertDialogBuilder(this)
+                .setTitle("Supprimer le compte")
+                .setMessage("Êtes-vous sûr de vouloir supprimer ce compte ?")
+                .setPositiveButton("Oui") { _, _ ->
+                    viewModel.deleteCompte(compteId)
+                }
+                .setNegativeButton("Annuler", null)
+                .show()
+        }
     }
 }

@@ -22,6 +22,7 @@ mutation DeleteCompte($id: ID!) {
     deleteCompte(id: $id)
 }
 
+
 # Mutation pour ajouter un nouveau compte
 mutation SaveCompte($compte: CompteInput!) {
     saveCompte(compte: $compte) {

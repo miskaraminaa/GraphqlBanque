@@ -1,20 +1,17 @@
-package ma.ensa.banquegraphql.repository
-
 import android.util.Log
 import com.apollographql.apollo3.ApolloClient
 import ma.ensa.banquegraphql.GetAllComptesQuery
 import ma.ensa.banquegraphql.GetTotalSoldeQuery
 import ma.ensa.banquegraphql.SaveCompteMutation
+import ma.ensa.banquegraphql.DeleteCompteMutation // Import the generated mutation class
 import ma.ensa.banquegraphql.type.CompteInput
 import ma.ensa.banquegraphql.type.TypeCompte
-
 
 class BanqueRepository {
     private val TAG = "BanqueRepository"
     private val apolloClient = ApolloClient.Builder()
         .serverUrl("http://10.0.2.2:8082/graphql")
         .build()
-
 
     suspend fun getAllComptes(callback: (Result<List<GetAllComptesQuery.AllCompte>>) -> Unit) {
         try {
@@ -55,7 +52,6 @@ class BanqueRepository {
         }
     }
 
-    // Modification du code pour envelopper solde, type, et dateCreation dans Optional.Present
     suspend fun saveCompte(
         solde: Double,
         type: TypeCompte,
@@ -64,17 +60,12 @@ class BanqueRepository {
     ) {
         try {
             Log.d(TAG, "Saving compte with solde: $solde, type: $type, and dateCreation: $dateCreation")
-
-            // Créer un objet CompteInput et envelopper les champs dans Optional.Present
             val input = CompteInput(
-                solde = solde, // pas besoin d'envelopper solde car c'est un type primitif
-                type = type, // Enveloppez le type dans Optional.Present
-                dateCreation = dateCreation // Enveloppez dateCreation dans Optional.Present
+                solde = solde,
+                type = type,
+                dateCreation = dateCreation
             )
-
-            // Exécutez la mutation
             val response = apolloClient.mutation(SaveCompteMutation(input)).execute()
-
             if (response.hasErrors()) {
                 val error = response.errors?.first()?.message ?: "Unknown error"
                 Log.e(TAG, "Error saving compte: $error")
@@ -87,6 +78,23 @@ class BanqueRepository {
             }
         } catch (e: Exception) {
             Log.e(TAG, "Exception while saving compte", e)
+            callback(Result.failure(e))
+        }
+    }
+
+    suspend fun deleteCompte(compteId: String, callback: (Result<String>) -> Unit) {
+        try {
+            val response = apolloClient.mutation(DeleteCompteMutation(compteId)).execute()
+
+            if (response.hasErrors()) {
+                callback(Result.failure(Exception(response.errors?.first()?.message ?: "Unknown error")))
+            } else {
+                response.data?.deleteCompte?.let { successMessage ->
+                    // Directly return the string result of the mutation (success message)
+                    callback(Result.success(successMessage))
+                } ?: callback(Result.failure(Exception("Null response")))
+            }
+        } catch (e: Exception) {
             callback(Result.failure(e))
         }
     }

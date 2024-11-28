@@ -1,5 +1,6 @@
 package ma.ensa.banquegraphql.data
 
+import BanqueRepository
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -10,7 +11,6 @@ import kotlinx.coroutines.launch
 import ma.ensa.banquegraphql.GetAllComptesQuery
 import ma.ensa.banquegraphql.GetTotalSoldeQuery
 import ma.ensa.banquegraphql.SaveCompteMutation
-import ma.ensa.banquegraphql.repository.BanqueRepository
 import ma.ensa.banquegraphql.type.TypeCompte
 
 class MainViewModel : ViewModel() {
@@ -35,6 +35,27 @@ class MainViewModel : ViewModel() {
     init {
         loadComptes()
         loadTotalSolde()
+    }
+
+
+    fun deleteCompte(compteId: String) {
+        coroutineScope.launch(Dispatchers.IO) {
+            try {
+                repository.deleteCompte(compteId) { result ->
+                    result.fold(
+                        onSuccess = { successMessage ->
+                            _success.postValue(successMessage) // Set success message here
+                            loadComptes() // Reload the accounts after deletion
+                        },
+                        onFailure = { exception ->
+                            _error.postValue(exception.message ?: "Unknown error")
+                        }
+                    )
+                }
+            } catch (e: Exception) {
+                _error.postValue("Exception: ${e.message}")
+            }
+        }
     }
 
 
