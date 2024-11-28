@@ -1,10 +1,7 @@
 package com.example.banque_service.controllers;
 
 
-import com.example.banque_service.entities.Compte;
-import com.example.banque_service.entities.Transaction;
-import com.example.banque_service.entities.TransactionInput;
-import com.example.banque_service.entities.TypeTransaction;
+import com.example.banque_service.entities.*;
 import com.example.banque_service.repositories.CompteRepository;
 import com.example.banque_service.repositories.TransactionRepository;
 import lombok.AllArgsConstructor;
@@ -108,5 +105,22 @@ public class CompteControllerGraphQL {
         transaction.setCompte(compte);
 
         return transactionRepository.save(transaction);
+    }
+
+
+
+
+    @MutationMapping
+    public String deleteCompte(@Argument Long id) {
+        Compte compte = compteRepository.findById(id).orElseThrow(
+                () -> new RuntimeException(String.format("Compte with id %s not found", id))
+        );
+        compteRepository.delete(compte);
+        return "Le compte " + id + " est bien supprimé !";
+    }
+
+    @QueryMapping
+    public List<Compte> compteByType(@Argument TypeCompte type) {
+        return compteRepository.findByType(type);
     }
 }

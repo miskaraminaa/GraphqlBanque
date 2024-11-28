@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">GraphQLTP</string>
+        <string-array name="type_options">
+            <item>COURANT</item>
+            <item>EPARGNE</item>
+        </string-array>
+
+    <string-array name="filter_types">
+        <item>COURANT</item>
+        <item>EPARGNE</item>
+    </string-array>
+
+</resources>

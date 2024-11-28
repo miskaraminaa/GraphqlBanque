@@ -1,0 +1,40 @@
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+type Compte {
+    id: ID!
+    solde: Float!
+    type: TypeCompte!
+    dateCreation: String!
+}
+
+type Query {
+    allComptes: [Compte!]!
+    compteById(id: ID!): Compte
+    totalSolde: TotalSoldeResponse!
+}
+
+type TotalSoldeResponse {
+    count: Int!
+    sum: Float!
+    average: Float!
+}
+
+type Mutation {
+    saveCompte(compte: CompteInput!): Compte!
+    deleteCompte(id: ID!): String
+
+}
+
+input CompteInput {
+    solde: Float!
+    type: TypeCompte!
+    dateCreation: String!
+}
+
+enum TypeCompte {
+    COURANT
+    EPARGNE
+}

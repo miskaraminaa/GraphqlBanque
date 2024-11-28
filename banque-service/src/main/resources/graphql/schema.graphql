@@ -7,6 +7,7 @@ input CompteRequest {
 type Query {
   allComptes: [Compte]
   compteById(id: ID!): Compte
+  compteByType(type: TypeCompte): [Compte]
   totalSolde: SoldeStats
   allTransactions: [Transaction]
   compteTransactions(compteId: ID!): [Transaction]
@@ -15,6 +16,7 @@ type Query {
 
 type Mutation {
   saveCompte(compte: CompteRequest!): Compte
+  deleteCompte(id: ID!): String
   addTransaction(transaction: TransactionInput!): Transaction
 }
 
